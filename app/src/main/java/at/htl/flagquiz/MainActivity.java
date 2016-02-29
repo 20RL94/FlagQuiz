@@ -2,18 +2,17 @@ package at.htl.flagquiz;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
+
+import java.util.Set;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -86,5 +85,31 @@ public class MainActivity extends AppCompatActivity {
         preferencesChanged = true;
         MainActivityFragment quizFragment =(MainActivityFragment)
                 getSupportFragmentManager().findFragmentById(R.id.quizFragment);
+        if (key.equals(CHOICES)) {
+            quizFragment.updateGuessRows(sharedPreferences);
+            quizFragment.resetQuiz();
+        } else if (key.equals(REGIONS)) {
+            Set<String> regions = sharedPreferences.getStringSet(REGIONS, null);
+            if (regions != null && regions.size() > 0) {
+                quizFragment.updateRegions(sharedPreferences);
+                quizFragment.resetQuiz();
+            } else {
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                regions.add(getString(R.string.default_region));
+                editor.putStringSet(REGIONS, regions);
+                editor.apply();
+
+                Toast.makeText(MainActivity.this,
+                        R.string.default_region_message,
+                        Toast.LENGTH_SHORT).show();
+            }
+        }
+        Toast.makeText(MainActivity.this,
+                R.string.restarting_quiz,
+                Toast.LENGTH_SHORT).show();
     }
+
+
+
+
 }
